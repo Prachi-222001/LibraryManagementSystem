@@ -10,13 +10,16 @@ namespace LibraryManagement.Controllers
     [ApiController]
     public class MemberController : Controller
     {
-        private readonly Container _container;
+        //Cosmos DB container
+        private Container container; 
 
+        //Constructor initializes the container
         public MemberController()
         {
-            _container = GetContainer();
+            container = GetContainer();
         }
 
+        //Initialize Cosmos DB client and retrieves the container
         private Container GetContainer()
         {
             string URI = "https://localhost:8081";
@@ -29,6 +32,7 @@ namespace LibraryManagement.Controllers
             return container;
         }
 
+        //Adds a new member to the database
         [HttpPost]
         public async Task<MemberModel> AddMember(MemberModel memberModel)
         {
@@ -40,7 +44,7 @@ namespace LibraryManagement.Controllers
                 DateOfBirth = memberModel.DateOfBirth,
                 Email = memberModel.Email,
                 DocumentType = "member",
-                CreatedBy = "Admin",
+                CreatedBy = "Prachi",
                 CreatedOn = DateTime.Now,
                 UpdatedBy = "",
                 UpdatedOn = DateTime.Now,
@@ -49,14 +53,15 @@ namespace LibraryManagement.Controllers
                 Archived = false
             };
 
-            await _container.CreateItemAsync(member);
+            await container.CreateItemAsync(member);
             return memberModel;
         }
 
+        //Retrieves a member by unique identifier
         [HttpGet]
         public async Task<MemberModel> GetMemberByUId(string UId)
         {
-            var member = _container.GetItemLinqQueryable<MemberEntity>(true)
+            var member = container.GetItemLinqQueryable<MemberEntity>(true)
                                    .Where(q => q.UId == UId && q.Active == true && q.Archived == false)
                                    .FirstOrDefault();
 
@@ -71,10 +76,11 @@ namespace LibraryManagement.Controllers
             };
         }
 
+        //Retrieves all members
         [HttpGet]
         public async Task<List<MemberModel>> GetAllMembers()
         {
-            var members = _container.GetItemLinqQueryable<MemberEntity>(true)
+            var members = container.GetItemLinqQueryable<MemberEntity>(true)
                                     .Where(q => q.Active == true && q.Archived == false && q.DocumentType == "member")
                                     .ToList();
 
@@ -93,10 +99,11 @@ namespace LibraryManagement.Controllers
             return memberModels;
         }
 
+        // Updates an existing member by archiving the old record and adding a new one
         [HttpPost]
         public async Task<MemberModel> UpdateMember(MemberModel memberModel)
         {
-            var existingMember = _container.GetItemLinqQueryable<MemberEntity>(true)
+            var existingMember = container.GetItemLinqQueryable<MemberEntity>(true)
                                            .Where(q => q.UId == memberModel.UId && q.Active == true && q.Archived == false)
                                            .FirstOrDefault();
 
@@ -104,7 +111,7 @@ namespace LibraryManagement.Controllers
 
             existingMember.Archived = true;
             existingMember.Active = false;
-            await _container.ReplaceItemAsync(existingMember, existingMember.Id);
+            await container.ReplaceItemAsync(existingMember, existingMember.Id);
 
             MemberEntity updatedMember = new MemberEntity
             {
@@ -114,16 +121,16 @@ namespace LibraryManagement.Controllers
                 DateOfBirth = memberModel.DateOfBirth,
                 Email = memberModel.Email,
                 DocumentType = "member",
-                CreatedBy = "Admin",
+                CreatedBy = "Prachi",
                 CreatedOn = DateTime.Now,
-                UpdatedBy = "Admin",
+                UpdatedBy = "",
                 UpdatedOn = DateTime.Now,
                 Version = existingMember.Version + 1,
                 Active = true,
                 Archived = false
             };
 
-            await _container.CreateItemAsync(updatedMember);
+            await container.CreateItemAsync(updatedMember);
 
             return memberModel;
         }

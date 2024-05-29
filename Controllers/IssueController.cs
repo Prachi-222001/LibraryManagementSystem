@@ -10,13 +10,16 @@ namespace LibraryManagement.Controllers
     [ApiController]
     public class IssueController : Controller
     {
-        private readonly Container _container;
+        //Cosmos DB container
+        private Container container;
 
+        //Constructor initializes the container
         public IssueController()
         {
-            _container = GetContainer();
+            container = GetContainer();
         }
 
+        //Initialize Cosmos DB client and retrieves the container
         private Container GetContainer()
         {
             string URI = "https://localhost:8081";
@@ -29,6 +32,7 @@ namespace LibraryManagement.Controllers
             return container;
         }
 
+        //Adds a new issue to the database
         [HttpPost]
         public async Task<IssueModel> AddIssue(IssueModel issueModel)
         {
@@ -42,7 +46,7 @@ namespace LibraryManagement.Controllers
                 ReturnDate = issueModel.ReturnDate,
                 IsReturned = issueModel.IsReturned,
                 DocumentType = "issue",
-                CreatedBy = "Admin",
+                CreatedBy = "Prachi",
                 CreatedOn = DateTime.Now,
                 UpdatedBy = "",
                 UpdatedOn = DateTime.Now,
@@ -51,14 +55,15 @@ namespace LibraryManagement.Controllers
                 Archived = false
             };
 
-            await _container.CreateItemAsync(issue);
+            await container.CreateItemAsync(issue);
             return issueModel;
         }
 
+        //Retrieves an issue by unique identifier
         [HttpGet]
         public async Task<IssueModel> GetIssueByUId(string UId)
         {
-            var issue = _container.GetItemLinqQueryable<IssueEntity>(true)
+            var issue = container.GetItemLinqQueryable<IssueEntity>(true)
                                   .Where(q => q.UId == UId && q.Active == true && q.Archived == false)
                                   .FirstOrDefault();
 
@@ -75,10 +80,11 @@ namespace LibraryManagement.Controllers
             };
         }
 
+        // Updates an existing issue by archiving the old record and adding a new one
         [HttpPost]
         public async Task<IssueModel> UpdateIssue(IssueModel issueModel)
         {
-            var existingIssue = _container.GetItemLinqQueryable<IssueEntity>(true)
+            var existingIssue = container.GetItemLinqQueryable<IssueEntity>(true)
                                           .Where(q => q.UId == issueModel.UId && q.Active == true && q.Archived == false)
                                           .FirstOrDefault();
 
@@ -86,7 +92,7 @@ namespace LibraryManagement.Controllers
 
             existingIssue.Archived = true;
             existingIssue.Active = false;
-            await _container.ReplaceItemAsync(existingIssue, existingIssue.Id);
+            await container.ReplaceItemAsync(existingIssue, existingIssue.Id);
 
             IssueEntity updatedIssue = new IssueEntity
             {
@@ -98,16 +104,16 @@ namespace LibraryManagement.Controllers
                 ReturnDate = issueModel.ReturnDate,
                 IsReturned = issueModel.IsReturned,
                 DocumentType = "issue",
-                CreatedBy = "Admin",
+                CreatedBy = "Prachi",
                 CreatedOn = DateTime.Now,
-                UpdatedBy = "Admin",
+                UpdatedBy = "",
                 UpdatedOn = DateTime.Now,
                 Version = existingIssue.Version + 1,
                 Active = true,
                 Archived = false
             };
 
-            await _container.CreateItemAsync(updatedIssue);
+            await container.CreateItemAsync(updatedIssue);
 
             return issueModel;
         }

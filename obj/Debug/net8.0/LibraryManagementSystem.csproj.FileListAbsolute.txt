@@ -60,3 +60,4 @@ C:\Users\Prachi\source\repos\LibraryManagementSystem\LibraryManagementSystem\obj
 C:\Users\Prachi\source\repos\LibraryManagementSystem\LibraryManagementSystem\obj\Debug\net8.0\LibraryManagementSystem.pdb
 C:\Users\Prachi\source\repos\LibraryManagementSystem\LibraryManagementSystem\obj\Debug\net8.0\LibraryManagementSystem.genruntimeconfig.cache
 C:\Users\Prachi\source\repos\LibraryManagementSystem\LibraryManagementSystem\obj\Debug\net8.0\ref\LibraryManagementSystem.dll
+C:\Users\Prachi\source\repos\LibraryManagementSystem\LibraryManagementSystem\obj\Debug\net8.0\LibraryManagementSystem.sourcelink.json
